@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bonsaiusagi — Portfolio</title>
+<meta name="description" content="bonsaiusagi のポートフォリオ。仕掛けのあるWebサービスを作っています。">
+<meta property="og:title" content="bonsaiusagi — Portfolio">
+<meta property="og:description" content="カワナカッタ・架空商店街など、仕掛けのあるWebサービスを作っています。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http%3A//www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E<span class="icon-bonsai"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><circle cx="8" cy="6" r="5" fill="#39c060"/><circle cx="4" cy="8" r="3" fill="#2ea050"/><circle cx="12" cy="8" r="3" fill="#2ea050"/><rect x="7" y="10" width="2" height="4" fill="#8B5E3C"/><rect x="5" y="13" width="6" height="1.5" fill="#8B5E3C"/></svg></span>%3C/text%3E%3C/svg%3E">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4026612478979535" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+
+.icon-bonsai, .icon-rabbit {
+  display:inline-flex;align-items:center;vertical-align:middle;
+  color:currentColor;flex-shrink:0;
+}
+.icon-bonsai svg, .icon-rabbit svg { display:block; }
+
+/* ── リセット & 変数 ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg: #080810;
+  --bg2: #0e0e1a;
+  --panel: #111120;
+  --border: #1e1e35;
+  --fg: #f0f0f8;
+  --mid: #6666aa;
+  --dim: #33334a;
+  --red: #ff3f3f;
+  --cyan: #3fffff;
+  --yellow: #ffd700;
+  --green: #39ff14;
+  --pixel: 'Space Mono', monospace;
+}
+
+/* ── 8bitピクセルカーソル ── */
+body{
+  background:var(--bg);
+  color:var(--fg);
+  font-family:'Noto Sans JP',sans-serif;
+  overflow-x:hidden;
+  
+}
+a,button{}
+
+/* ── ナビ ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 6vw;
+  background:rgba(8,8,16,0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:var(--pixel);font-size:16px;color:var(--fg);
+  letter-spacing:2px;text-decoration:none;display:flex;align-items:center;gap:8px;
+}
+.nav-logo span{color:var(--red);}
+.nav-links{display:flex;gap:32px;}
+.nav-links a{
+  font-family:var(--pixel);font-size:11px;color:var(--mid);
+  text-decoration:none;letter-spacing:2px;text-transform:uppercase;
+  transition:color 0.2s;
+}
+.nav-links a:hover{color:var(--fg);}
+
+/* ── HERO ── */
+#hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:flex-end;padding:0 6vw 10vh;
+  position:relative;overflow:hidden;
+}
+.hero-bg-text{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(120px,20vw,280px);
+  color:rgba(255,255,255,0.025);
+  letter-spacing:-4px;white-space:nowrap;
+  user-select:none;pointer-events:none;
+  line-height:0.85;text-align:center;
+}
+.hero-tag{
+  font-family:var(--pixel);font-size:11px;
+  color:var(--red);letter-spacing:4px;
+  text-transform:uppercase;margin-bottom:20px;
+  
+}
+.hero-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(64px,12vw,160px);
+  line-height:0.88;letter-spacing:-2px;
+  
+}
+.hero-name em{font-style:normal;color:var(--red);}
+.hero-sub{
+  font-family:var(--pixel);font-size:12px;
+  color:var(--mid);letter-spacing:3px;
+  margin-top:20px;margin-bottom:40px;
+  
+}
+.hero-avatar{
+  position:absolute;right:6vw;bottom:8vh;
+  width:clamp(140px,15vw,200px);
+  aspect-ratio:1;border-radius:50%;
+  overflow:hidden;
+  border:2px solid var(--border);
+  box-shadow:0 0 40px rgba(255,63,63,0.15);
+  
+}
+.hero-avatar img{width:100%;height:100%;object-fit:cover;}
+.hero-scroll{
+  font-family:var(--pixel);font-size:9px;
+  color:var(--dim);letter-spacing:3px;
+  display:flex;align-items:center;gap:12px;
+  
+}
+.hero-scroll::before{
+  content:'';display:block;width:40px;height:1px;background:var(--dim);
+}
+
+/* ── WORKS ── */
+#works{padding:120px 6vw;}
+.section-eyebrow{
+  font-family:var(--pixel);font-size:10px;
+  color:var(--red);letter-spacing:4px;
+  text-transform:uppercase;margin-bottom:16px;
+}
+.section-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(48px,7vw,96px);
+  color:var(--fg);letter-spacing:-1px;
+  margin-bottom:64px;line-height:1;
+}
+.works-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+  gap:2px;
+}
+.work-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  transition:transform 0.3s cubic-bezier(0.16,1,0.3,1), border-color 0.3s;
+  text-decoration:none;color:inherit;
+}
+.work-card:hover{transform:translateY(-6px);border-color:rgba(255,63,63,0.3);}
+.work-thumb{
+  width:100%;height:160px;
+  position:relative;overflow:hidden;
+  pointer-events:none;flex-shrink:0;
+}
+.work-thumb-inner{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.work-body{padding:28px 28px 24px;display:flex;flex-direction:column;flex:1;}
+.work-tag{
+  font-family:var(--pixel);font-size:9px;
+  color:var(--mid);letter-spacing:3px;
+  text-transform:uppercase;margin-bottom:12px;
+}
+.work-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:36px;color:var(--fg);
+  letter-spacing:1px;margin-bottom:10px;line-height:1;
+}
+.work-desc{
+  font-size:12px;color:var(--mid);line-height:1.9;
+  flex:1;margin-bottom:20px;
+}
+.work-tech{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:24px;}
+.tech-tag{
+  font-family:var(--pixel);font-size:9px;
+  color:var(--dim);border:1px solid var(--border);
+  padding:3px 8px;letter-spacing:1px;
+}
+.work-link{
+  font-family:var(--pixel);font-size:10px;
+  color:var(--red);text-decoration:none;
+  letter-spacing:2px;text-transform:uppercase;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:gap 0.2s;align-self:flex-start;
+  position:relative;z-index:2;
+}
+.work-link::after{content:'→';}
+.work-link:hover{gap:16px;}
+.work-num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:72px;color:rgba(255,255,255,0.03);
+  position:absolute;bottom:-8px;right:12px;
+  line-height:1;pointer-events:none;user-select:none;
+}
+.work-card-coming{
+  background:transparent;border:1px dashed var(--border);
+  display:flex;align-items:center;justify-content:center;
+  min-height:320px;
+}
+.coming-text{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:28px;color:var(--dim);
+  letter-spacing:4px;text-align:center;
+}
+
+/* ── カワナカッタサムネイル ── */
+.thumb-kawanakatta{background:linear-gradient(135deg,#0d0320 0%,#1a0535 50%,#0d0320 100%);}
+.thumb-kw-grid{
+  position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(180,80,255,0.07) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(180,80,255,0.07) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+.thumb-kw-label{
+  position:absolute;top:12px;left:14px;
+  font-family:var(--pixel);font-size:8px;
+  color:rgba(255,255,255,0.25);letter-spacing:2px;
+}
+.thumb-kw-badge{
+  position:absolute;top:10px;right:12px;
+  background:rgba(204,68,255,0.15);border:1px solid rgba(204,68,255,0.35);
+  font-family:var(--pixel);font-size:8px;color:#cc44ff;
+  padding:2px 7px;letter-spacing:1px;
+}
+.thumb-kw-coins{
+  display:flex;gap:8px;align-items:flex-end;position:relative;z-index:1;
+}
+.thumb-kw-coin{
+  border-radius:50%;
+  background:linear-gradient(135deg,#ffd700,#ff9900);
+  box-shadow:0 0 10px rgba(255,215,0,0.45);
+  display:flex;align-items:center;justify-content:center;
+}
+.thumb-kw-bar{
+  position:absolute;bottom:14px;left:14px;right:14px;
+  height:3px;background:rgba(255,255,255,0.07);border-radius:2px;
+}
+.thumb-kw-fill{
+  height:100%;width:68%;
+  background:linear-gradient(90deg,#cc44ff,#ff44cc);
+  border-radius:2px;box-shadow:0 0 8px rgba(204,68,255,0.5);
+}
+
+/* ── 架空商店街サムネイル ── */
+.thumb-kaiku{background:linear-gradient(180deg,#03030f 0%,#08081e 70%,#0c0c22 100%);}
+.thumb-kk-stars{position:absolute;inset:0;pointer-events:none;}
+.thumb-kk-star{
+  position:absolute;width:2px;height:2px;
+  background:white;border-radius:50%;
+  animation:twinkle var(--d,3s) var(--dl,0s) infinite;
+}
+@keyframes twinkle{0%,100%{opacity:.9}50%{opacity:.1}}
+.thumb-kk-moon{
+  position:absolute;top:10px;right:14px;font-size:18px;
+  filter:drop-shadow(0 0 6px rgba(255,255,200,0.5));
+  pointer-events:none;
+}
+.thumb-kk-shops{
+  position:absolute;bottom:10px;left:0;right:0;
+  display:flex;align-items:flex-end;justify-content:center;gap:2px;
+  pointer-events:none;
+}
+.thumb-kk-shop{display:flex;flex-direction:column;align-items:center;}
+.thumb-kk-roof{border-radius:1px 1px 0 0;}
+.thumb-kk-body{
+  background:#0e0e20;border:1px solid #252540;
+  display:flex;align-items:center;justify-content:center;
+}
+.thumb-kk-road{
+  position:absolute;bottom:0;left:0;right:0;height:10px;
+  background:repeating-linear-gradient(90deg,#1e1e30 0,#1e1e30 10px,#151525 10px,#151525 14px);
+  border-top:1px solid #333;pointer-events:none;
+}
+
+/* ── CONTACT ── */
+#contact{
+  padding:120px 6vw 80px;
+  border-top:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:flex-start;
+}
+.contact-label{
+  font-family:var(--pixel);font-size:10px;
+  color:var(--red);letter-spacing:4px;
+  text-transform:uppercase;margin-bottom:16px;
+}
+.contact-heading{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(52px,8vw,110px);
+  line-height:0.9;letter-spacing:-2px;
+  margin-bottom:28px;
+}
+.contact-heading span{color:var(--red);}
+.contact-desc{
+  font-size:14px;color:var(--mid);
+  line-height:2;max-width:480px;margin-bottom:48px;
+}
+.contact-email{
+  display:flex;align-items:center;gap:16px;
+  font-family:'Noto Sans JP',sans-serif;font-size:15px;font-weight:400;
+  color:var(--fg);text-decoration:none;
+  padding:18px 28px;
+  border:1px solid var(--border);
+  transition:all 0.25s;margin-bottom:20px;
+  letter-spacing:0.03em;
+}
+.contact-email:hover{
+  border-color:var(--red);
+  background:rgba(255,63,63,0.05);
+  color:var(--red);gap:28px;
+}
+.contact-email .arrow{transition:transform 0.25s;}
+.contact-email:hover .arrow{transform:translateX(6px);}
+.contact-works-btn{
+  font-family:var(--pixel);font-size:10px;
+  color:var(--mid);text-decoration:none;
+  letter-spacing:2px;display:flex;align-items:center;gap:8px;
+  transition:color 0.2s;
+}
+.contact-works-btn:hover{color:var(--fg);}
+
+/* ── FOOTER ── */
+footer{
+  padding:32px 6vw;
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+}
+.footer-copy{
+  font-family:var(--pixel);font-size:10px;
+  color:var(--dim);letter-spacing:2px;
+}
+
+/* ── アニメーション ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(24px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.reveal{opacity:1;transform:none;}
+.reveal.visible{opacity:1;transform:none;}
+
+/* ── スクロールバー ── */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);}
+::-webkit-scrollbar-thumb:hover{background:var(--mid);}
+
+@media(max-width:640px){
+  .works-grid{grid-template-columns:1fr;}
+  .hero-avatar{width:100px;bottom:4vh;right:4vw;}
+}
+</style>
+</head>
+<body>
+
+<!-- ナビ -->
+<nav>
+  <a href="#" class="nav-logo"><span class="icon-bonsai"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><circle cx="8" cy="6" r="5" fill="#39c060"/><circle cx="4" cy="8" r="3" fill="#2ea050"/><circle cx="12" cy="8" r="3" fill="#2ea050"/><rect x="7" y="10" width="2" height="4" fill="#8B5E3C"/><rect x="5" y="13" width="6" height="1.5" fill="#8B5E3C"/></svg></span> bonsai<span>usagi</span></a>
+  <div class="nav-links">
+    <a href="#works">Works</a>
+    <a href="#contact">Contact</a>
+    <a href="/privacy/">Policy</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-text">BONSAI<br>USAGI</div>
+  <div class="hero-avatar">
+    <img src="data:image/jpeg;base64,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" alt="bonsaiusagi">
+  </div>
+  <div class="hero-tag"><span class="icon-bonsai"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><circle cx="8" cy="6" r="5" fill="#39c060"/><circle cx="4" cy="8" r="3" fill="#2ea050"/><circle cx="12" cy="8" r="3" fill="#2ea050"/><rect x="7" y="10" width="2" height="4" fill="#8B5E3C"/><rect x="5" y="13" width="6" height="1.5" fill="#8B5E3C"/></svg></span> bonsaiusagi — Web Creator Portfolio</div>
+  <h1 class="hero-name">BONSAI<br><em>USAGI</em><br>WORKS</h1>
+  <p class="hero-sub">Webサービスを作っています。</p>
+  <div class="hero-scroll">SCROLL DOWN</div>
+</section>
+
+<!-- WORKS -->
+<section id="works">
+  <div class="section-eyebrow"><span class="icon-bonsai"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><circle cx="8" cy="6" r="5" fill="#39c060"/><circle cx="4" cy="8" r="3" fill="#2ea050"/><circle cx="12" cy="8" r="3" fill="#2ea050"/><rect x="7" y="10" width="2" height="4" fill="#8B5E3C"/><rect x="5" y="13" width="6" height="1.5" fill="#8B5E3C"/></svg></span> 制作物</div>
+  <h2 class="section-title reveal visible">Works</h2>
+
+  <div class="works-grid">
+
+    <!-- 名画ガチャ -->
+    <div class="work-card reveal visible" style="animation-delay:0.1s;">
+      <div class="work-thumb" style="background:linear-gradient(135deg,#0a1209 0%,#0f1e14 60%,#1a2810 100%);position:relative;overflow:hidden;">
+        <div style="position:absolute;inset:0;background-image:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(201,168,76,0.08) 0%,transparent 70%);"></div>
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#c9a84c,transparent);"></div>
+        <div class="work-thumb-inner" style="flex-direction:column;gap:10px;">
+          <svg width="52" height="52" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="10,28 40,8 70,28" fill="none" stroke="#c9a84c" stroke-width="2"/>
+            <line x1="8" y1="28" x2="72" y2="28" stroke="#c9a84c" stroke-width="2"/>
+            <rect x="14" y="28" width="5" height="34" fill="#c9a84c" opacity="0.7"/>
+            <rect x="24" y="28" width="5" height="34" fill="#c9a84c" opacity="0.7"/>
+            <rect x="36" y="28" width="5" height="34" fill="#c9a84c" opacity="0.9"/>
+            <rect x="48" y="28" width="5" height="34" fill="#c9a84c" opacity="0.7"/>
+            <rect x="58" y="28" width="5" height="34" fill="#c9a84c" opacity="0.7"/>
+            <rect x="8" y="62" width="64" height="4" fill="#c9a84c" opacity="0.6"/>
+            <rect x="4" y="66" width="72" height="4" fill="#c9a84c" opacity="0.4"/>
+            <circle cx="40" cy="16" r="2" fill="#e8c97a"/>
+          </svg>
+          <div style="color:#c9a84c;font-size:0.6rem;letter-spacing:0.3em;font-family:'Space Mono',monospace;">MET MUSEUM COLLECTION</div>
+        </div>
+      </div>
+      <div class="work-body">
+        <div class="work-num">01</div>
+        <h3 class="work-title">名画ガチャ</h3>
+        <a href="https://artgacha.bonsaiusagi.com/" target="_blank" class="work-link">サイトを見る</a>
+      </div>
+    </div>
+
+    <!-- 架空MBTI診断 -->
+    <div class="work-card reveal visible" style="animation-delay:0.2s;">
+      <div class="work-thumb" style="background:linear-gradient(135deg,#0a0a0f 60%,#1a0c0c 100%);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#ff6b6b,#ffd93d,#6bcb77,#4d96ff);"></div>
+        <div class="work-thumb-inner" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+          <div style="display:flex;gap:8px;">
+            <div style="width:48px;height:60px;background:#0d0d18;border:2px solid #ff6b6b;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:1.6rem;font-weight:900;color:#ff6b6b;">M</div>
+            <div style="width:48px;height:60px;background:#0d0d18;border:2px solid #ffd93d;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:1.6rem;font-weight:900;color:#ffd93d;">B</div>
+            <div style="width:48px;height:60px;background:#0d0d18;border:2px solid #6bcb77;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:1.6rem;font-weight:900;color:#6bcb77;">T</div>
+            <div style="width:48px;height:60px;background:#0d0d18;border:2px solid #4d96ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:serif;font-size:1.6rem;font-weight:900;color:#4d96ff;">I</div>
+          </div>
+          <div style="color:#666680;font-size:0.65rem;letter-spacing:0.2em;font-family:sans-serif;">PERSONALITY TYPE GENERATOR</div>
+        </div>
+      </div>
+      <div class="work-body">
+        <div class="work-num">02</div>
+        <h3 class="work-title">架空MBTI診断</h3>
+        <a href="https://mbti.bonsaiusagi.com/" target="_blank" class="work-link">サイトを見る</a>
+      </div>
+    </div>
+
+    <!-- カワナカッタ -->
+    <div class="work-card reveal visible" style="animation-delay:0.3s;">
+      <div class="work-thumb thumb-kawanakatta">
+        <div class="work-thumb-inner">
+          <div class="thumb-kw-grid"></div>
+          <div class="thumb-kw-label">KA・WA・NA・KAT・TA</div>
+          <div class="thumb-kw-badge">SNS</div>
+          <div class="thumb-kw-coins">
+            <div class="thumb-kw-coin" style="width:22px;height:22px;font-size:11px;">💰</div>
+            <div class="thumb-kw-coin" style="width:34px;height:34px;font-size:17px;">💰</div>
+            <div class="thumb-kw-coin" style="width:26px;height:26px;font-size:13px;">💰</div>
+            <div class="thumb-kw-coin" style="width:44px;height:44px;font-size:22px;background:linear-gradient(135deg,#ff44cc,#cc44ff);box-shadow:0 0 16px rgba(204,68,255,0.6);">🎰</div>
+            <div class="thumb-kw-coin" style="width:28px;height:28px;font-size:14px;">💰</div>
+          </div>
+          <div class="thumb-kw-bar"><div class="thumb-kw-fill"></div></div>
+        </div>
+      </div>
+      <div class="work-body">
+        <div class="work-num">03</div>
+        <h3 class="work-title">カワナカッタ</h3>
+        <span class="work-link" style="opacity:0.4;cursor:default;">Coming soon...</span>
+      </div>
+    </div>
+
+    <!-- 架空商店街 -->
+    <div class="work-card reveal visible" style="animation-delay:0.4s">
+      <div class="work-thumb thumb-kaiku">
+        <div class="work-thumb-inner" style="flex-direction:column;justify-content:flex-end;">
+          <div class="thumb-kk-stars">
+            <div class="thumb-kk-star" style="left:83%;top:18%;--d:2.1s;--dl:-1.2s;"></div>
+            <div class="thumb-kk-star" style="left:30%;top:22%;--d:3.3s;--dl:-0.5s;"></div>
+            <div class="thumb-kk-star" style="left:71%;top:12%;--d:2.8s;--dl:-2.1s;"></div>
+            <div class="thumb-kk-star" style="left:15%;top:28%;--d:1.9s;--dl:-0.8s;"></div>
+            <div class="thumb-kk-star" style="left:55%;top:8%;--d:3.1s;--dl:-1.6s;"></div>
+            <div class="thumb-kk-star" style="left:42%;top:35%;--d:2.4s;--dl:-0.3s;"></div>
+            <div class="thumb-kk-star" style="left:88%;top:32%;--d:1.7s;--dl:-2.5s;"></div>
+            <div class="thumb-kk-star" style="left:6%;top:15%;--d:2.9s;--dl:-1.0s;"></div>
+            <div class="thumb-kk-star" style="left:63%;top:42%;--d:3.5s;--dl:-0.7s;"></div>
+            <div class="thumb-kk-star" style="left:22%;top:10%;--d:2.2s;--dl:-1.8s;"></div>
+          </div>
+          <div class="thumb-kk-moon">🌕</div>
+          <div class="thumb-kk-shops">
+            <div class="thumb-kk-shop"><div class="thumb-kk-roof" style="width:34px;height:5px;background:#cc4444;"></div><div class="thumb-kk-body" style="width:34px;height:38px;font-size:14px;">🏚</div></div>
+            <div class="thumb-kk-shop"><div class="thumb-kk-roof" style="width:26px;height:5px;background:#4488cc;"></div><div class="thumb-kk-body" style="width:26px;height:30px;font-size:11px;">📚</div></div>
+            <div class="thumb-kk-shop"><div class="thumb-kk-roof" style="width:22px;height:5px;background:#44aa44;"></div><div class="thumb-kk-body" style="width:22px;height:26px;font-size:10px;">🌿</div></div>
+            <div class="thumb-kk-shop"><div class="thumb-kk-roof" style="width:38px;height:5px;background:#aa44cc;"></div><div class="thumb-kk-body" style="width:38px;height:44px;font-size:16px;">🔮</div></div>
+            <div class="thumb-kk-shop"><div class="thumb-kk-roof" style="width:30px;height:5px;background:#cc8844;"></div><div class="thumb-kk-body" style="width:30px;height:36px;font-size:13px;">⏰</div></div>
+            <div class="thumb-kk-shop"><div class="thumb-kk-roof" style="width:24px;height:5px;background:#4466aa;"></div><div class="thumb-kk-body" style="width:24px;height:28px;font-size:10px;">☂️</div></div>
+            <div class="thumb-kk-shop"><div class="thumb-kk-roof" style="width:32px;height:5px;background:#886644;"></div><div class="thumb-kk-body" style="width:32px;height:38px;font-size:13px;">🗝️</div></div>
+          </div>
+          <div class="thumb-kk-road"></div>
+        </div>
+      </div>
+      <div class="work-body">
+        <div class="work-num">04</div>
+        <h3 class="work-title">架空商店街</h3>
+        <span class="work-link" style="opacity:0.4;cursor:default;">Coming soon...</span>
+      </div>
+    </div>
+
+    <!-- Coming Soon -->
+    <div class="work-card-coming reveal visible" style="animation-delay:0.5s">
+      <div class="coming-text">NEXT<br>PROJECT<br><span style="font-size:14px;color:var(--dim);">· 準備中</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-label"><span class="icon-bonsai"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><circle cx="8" cy="6" r="5" fill="#39c060"/><circle cx="4" cy="8" r="3" fill="#2ea050"/><circle cx="12" cy="8" r="3" fill="#2ea050"/><rect x="7" y="10" width="2" height="4" fill="#8B5E3C"/><rect x="5" y="13" width="6" height="1.5" fill="#8B5E3C"/></svg></span> Contact</div>
+  
+  <a href="#" id="contactMailLink" data-cfasync="false" class="contact-email reveal visible">
+    <span id="contactMailText">読み込み中...</span>
+    <span class="arrow">→</span>
+  </a>
+  <a href="https://twitter.com/bonsai_usagi" target="_blank" rel="noopener" class="contact-email reveal visible">
+    <span>𝕏 @bonsai_usagi</span>
+    <span class="arrow">→</span>
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-copy">© 2026 bonsaiusagi <span class="icon-bonsai"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;flex-shrink:0;"><circle cx="8" cy="6" r="5" fill="#39c060"/><circle cx="4" cy="8" r="3" fill="#2ea050"/><circle cx="12" cy="8" r="3" fill="#2ea050"/><rect x="7" y="10" width="2" height="4" fill="#8B5E3C"/><rect x="5" y="13" width="6" height="1.5" fill="#8B5E3C"/></svg></span></div>
+  <div class="footer-copy" style="color:var(--dim);">Built with HTML / Cloudflare Pages</div>
+  <div class="footer-copy" style="margin-top:0.5rem;"><a href="/privacy/" style="color:var(--dim);text-decoration:none;font-size:0.75rem;letter-spacing:0.1em;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">プライバシーポリシー</a></div>
+</footer>
+
+<script>
+(function(){
+  var n='bonsaiusagi',d='gmail',t='com';
+  var addr=n+'@'+d+'.'+t;
+  var el=document.getElementById('contactMailLink');
+  var tx=document.getElementById('contactMailText');
+  if(el){el.setAttribute('href','mai'+'lto:'+addr);}
+  if(tx){tx.textContent=addr;}
+})();
+</script>
+</body>
+</html>
