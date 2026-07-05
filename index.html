@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BONSAIUSAGI — digital garden</title>
 <meta name="description" content="bonsaiusagi — プロダクトを育てる個人開発サイト">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -419,7 +420,7 @@ footer {
       <h3>DOTDAYS</h3>
       <div class="work-kana">1日1枚の写真が、最後に1枚の絵になる</div>
       <p>
-        部活の引退、退職の日、結婚式。<b>「終わりの日」に向けて毎日1枚だけ写真を撮る</b>と、
+        部活の引退、卒業の日、結婚式。<b>「終わりの日」に向けて毎日1枚だけ写真を撮る</b>と、
         その全部がモザイクアートとして完成するアプリ。写真は端末の外に出ない設計で、
         最終日には式のスクリーンで流せるセレモニー動画を書き出せます。
         流行アプリを分解していて「共有したくなるのは自分の毎日が形になったときだ」と気づいたのが始まりです。
@@ -507,59 +508,173 @@ footer {
   const cv = document.getElementById('bonsaiCanvas');
   const ctx = cv.getContext('2d');
   const W = cv.width, H = cv.height;
-  const dots = []; // {x,y,r,color,order}
+  const dots = []; // {x,y,r,c,o}
+  const cx = W / 2;
 
-  // 枝を再帰生成（毎回ランダム）
-  function branch(x, y, angle, len, depth) {
-    if (depth <= 0 || len < 14) {
-      // 葉群: 緑ドットのクラスタ
-      const n = 26 + Math.random() * 22;
-      for (let i = 0; i < n; i++) {
-        const a = Math.random() * Math.PI * 2;
-        const rr = Math.random() * len * 1.9 + 6;
-        dots.push({
-          x: x + Math.cos(a) * rr * 1.25,
-          y: y + Math.sin(a) * rr * 0.8,
-          r: 2.2 + Math.random() * 3.4,
-          c: Math.random() < .12 ? '#2ea06b' : (Math.random() < .5 ? '#43e6a0' : '#2bbd80'),
-          o: y
-        });
-      }
-      return;
-    }
-    const steps = Math.floor(len / 7);
-    let px = x, py = y;
-    for (let i = 0; i < steps; i++) {
-      px += Math.cos(angle) * 7 + (Math.random() - .5) * 2.4;
-      py += Math.sin(angle) * 7 + (Math.random() - .5) * 2.4;
+  /* --- 実際の盆栽（模様木）の構造 ---
+     ・浅く横長の脚付きの鉢
+     ・根元が太く、上に行くほど細くなるS字の幹
+     ・左右交互に張り出す、ほぼ水平の枝
+     ・枝先に平たい雲状の葉群（葉棚）      */
+
+  // 葉棚: 横に平たい楕円クラスタ
+  function pad(x, y, size) {
+    const n = size * 4.2;
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const rr = Math.sqrt(Math.random());
       dots.push({
-        x: px, y: py,
-        r: Math.max(1.6, depth * 1.35 + Math.random()),
-        c: depth > 3 ? '#5c4632' : '#6e5540',
-        o: py
+        x: x + Math.cos(a) * rr * size * 1.15,          // 横長
+        y: y + Math.sin(a) * rr * size * 0.38 - size * .1, // 平たい
+        r: 2 + Math.random() * 3,
+        c: Math.random() < .14 ? '#2a8f60' : (Math.random() < .5 ? '#43e6a0' : '#2bbd80'),
+        o: y
       });
     }
-    const forks = depth > 4 ? 2 : (Math.random() < .7 ? 2 : 1);
-    for (let f = 0; f < forks; f++) {
-      const spread = (Math.random() * .55 + .32) * (f === 0 ? -1 : 1);
-      const bend = (Math.random() - .5) * .3 - .12; // 盆栽らしく横へ流す
-      branch(px, py, angle + spread + bend, len * (0.6 + Math.random() * .18), depth - 1);
+  }
+
+  // 器: 毎回ランダムで4種類（正統2種 + ありえない2種）
+  const potY = H * .84;
+  const potVariant = Math.floor(Math.random() * 4); // 0浅鉢 1丸鉢 2バケツ 3マグカップ
+  let potW;
+
+  function fillPot(shapeHalf, potH, colors, rimColor) {
+    for (let i = 0; i < 200 + potH * 3; i++) {
+      const y = potY + Math.random() * potH;
+      const t = (y - potY) / potH;
+      const half = shapeHalf(t);
+      dots.push({
+        x: cx + (Math.random() * 2 - 1) * half,
+        y,
+        r: 2 + Math.random() * 2.4,
+        c: y < potY + 5 ? rimColor : colors[Math.floor(Math.random() * colors.length)],
+        o: potY + 900
+      });
     }
   }
 
-  // 鉢
-  const potY = H * .82;
-  for (let i = 0; i < 130; i++) {
+  if (potVariant === 0) {
+    // 浅鉢（正統・台形・脚付き）
+    potW = W * .46;
+    fillPot(t => potW / 2 * (1 - t * 0.14), 36, ['#23282d', '#313940'], '#4a5560');
+    for (const sx of [-1, 1]) {
+      for (let i = 0; i < 16; i++) {
+        dots.push({
+          x: cx + sx * potW * .36 + (Math.random() - .5) * 16,
+          y: potY + 36 + Math.random() * 10,
+          r: 2 + Math.random() * 2,
+          c: '#23282d', o: potY + 900
+        });
+      }
+    }
+  } else if (potVariant === 1) {
+    // 丸鉢（正統・テラコッタ・半楕円）
+    potW = W * .4;
+    fillPot(t => potW / 2 * Math.sqrt(Math.max(0.06, 1 - t * t * 0.9)), 52, ['#7a4a30', '#8a5638'], '#a06a48');
+  } else if (potVariant === 2) {
+    // バケツ（ありえない・ブリキ・上広がり＋取っ手）
+    potW = W * .3;
+    fillPot(t => potW / 2 * (1 - t * 0.22) , 74, ['#4a5560', '#5a6673'], '#8a95a3');
+    // 取っ手（上に弧）
+    for (let i = 0; i < 40; i++) {
+      const a = Math.PI + (i / 40) * Math.PI;
+      dots.push({
+        x: cx + Math.cos(a) * potW * .42,
+        y: potY + 4 + Math.sin(a) * 26,
+        r: 1.8, c: '#8a95a3', o: potY + 900
+      });
+    }
+  } else {
+    // マグカップ（ありえない・白磁・円筒＋取っ手）
+    potW = W * .26;
+    fillPot(() => potW / 2, 66, ['#b8b4a8', '#cac6ba'], '#e0dcd0');
+    // 取っ手（横にリング）
+    for (let i = 0; i < 36; i++) {
+      const a = (i / 36) * Math.PI * 2;
+      dots.push({
+        x: cx + potW / 2 + 18 + Math.cos(a) * 16,
+        y: potY + 30 + Math.sin(a) * 20,
+        r: 2, c: '#cac6ba', o: potY + 900
+      });
+    }
+  }
+  // 土の表面（鉢の上に薄く盛る）
+  for (let i = 0; i < 70; i++) {
     dots.push({
-      x: W/2 + (Math.random() - .5) * W * .34,
-      y: potY + Math.random() * 46,
-      r: 2 + Math.random() * 2.6,
-      c: Math.random() < .5 ? '#23282d' : '#31383f',
-      o: potY + 500 // 鉢は最初に出す
+      x: cx + (Math.random() * 2 - 1) * potW * .42,
+      y: potY - Math.random() * 7,
+      r: 1.6 + Math.random() * 2,
+      c: Math.random() < .3 ? '#3a3128' : '#2c261f',
+      o: potY + 800
     });
   }
-  // 幹スタート（少し傾ける = 模様木）
-  branch(W/2, potY, -Math.PI/2 + (Math.random() - .5) * .3, H * .17, 6);
+
+  // 幹: S字カーブ、根元が太く先端が細い
+  const lean = (Math.random() < .5 ? -1 : 1) * (30 + Math.random() * 40); // 左右どちらかへ流れる
+  const curveAmp = 42 + Math.random() * 26;
+  const trunkH = H * .52;
+  const topX = cx + lean;
+  const trunkPt = t => ({
+    x: cx + lean * t + Math.sin(t * Math.PI * 1.6) * curveAmp * (1 - t * .4),
+    y: potY - 6 - trunkH * t
+  });
+  const STEPS = 90;
+  for (let i = 0; i <= STEPS; i++) {
+    const t = i / STEPS;
+    const p = trunkPt(t);
+    const rad = 15 * Math.pow(1 - t, 1.4) + 2.5;   // テーパー（根元太→先細）
+    const nDots = Math.max(2, Math.round(rad / 2.6));
+    for (let j = 0; j < nDots; j++) {
+      dots.push({
+        x: p.x + (Math.random() * 2 - 1) * rad,
+        y: p.y + (Math.random() - .5) * 4,
+        r: 1.8 + Math.random() * 1.8,
+        c: Math.random() < .25 ? '#4a3a2b' : '#5c4632',
+        o: p.y
+      });
+    }
+  }
+  // 根張り（根元が地面をつかむ広がり）
+  for (let i = 0; i < 40; i++) {
+    dots.push({
+      x: cx + (Math.random() * 2 - 1) * 34,
+      y: potY - 4 - Math.random() * 8,
+      r: 2 + Math.random() * 2,
+      c: '#5c4632',
+      o: potY + 700
+    });
+  }
+
+  // 枝: 左右交互・ほぼ水平・上ほど短い
+  const nBranches = 4 + Math.floor(Math.random() * 2);
+  let side = Math.random() < .5 ? 1 : -1;
+  for (let b = 0; b < nBranches; b++) {
+    const t = .3 + (b / nBranches) * .55 + Math.random() * .05;
+    const p = trunkPt(t);
+    const len = (110 - b * 18) * (0.85 + Math.random() * .3);
+    const droop = 10 + Math.random() * 14;          // 枝はわずかに下がってから先で持ち上がる
+    const bSteps = Math.floor(len / 6);
+    let ex = p.x, ey = p.y;
+    for (let i = 0; i < bSteps; i++) {
+      const bt = i / bSteps;
+      ex = p.x + side * len * bt;
+      ey = p.y + Math.sin(bt * Math.PI) * droop * .4 - bt * 6;
+      dots.push({
+        x: ex + (Math.random() - .5) * 3,
+        y: ey + (Math.random() - .5) * 3,
+        r: Math.max(1.5, 3.6 * (1 - bt)),
+        c: '#5c4632',
+        o: ey
+      });
+    }
+    pad(ex + side * 12, ey - 10, 34 - b * 3 + Math.random() * 8);  // 枝先の葉棚
+    side *= -1;                                     // 左右交互
+  }
+  // 頂芽（樹冠）: 一番上に丸みのある葉群
+  const apex = trunkPt(1);
+  pad(apex.x, apex.y - 14, 44);
+  pad(apex.x - 24, apex.y + 2, 26);
+  pad(apex.x + 24, apex.y + 2, 26);
 
   // 下から順に生える
   dots.sort((a, b) => b.o - a.o);
