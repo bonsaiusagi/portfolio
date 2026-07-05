@@ -375,6 +375,7 @@ footer {
 <div class="hud-frame"></div>
 <div class="hud-tag" id="hudTL">BONSAIUSAGI.COM</div>
 <div class="hud-tag" id="hudTR">SYS.ONLINE</div>
+<div class="hud-tag" id="hudVisitor" style="top:36px;right:26px;color:var(--jade);font-size:10px;text-align:right"></div>
 <div class="hud-tag" id="hudBL">35.68°N 139.76°E</div>
 
 <nav>
@@ -517,6 +518,12 @@ footer {
      ・左右交互に張り出す、ほぼ水平の枝
      ・枝先に平たい雲状の葉群（葉棚）      */
 
+  // 個体差: 緑のパレットも毎回わずかに違う
+  const hueShift = -16 + Math.random() * 32;
+  const G_BRIGHT = `hsl(${156 + hueShift} 72% 58%)`;
+  const G_MID    = `hsl(${152 + hueShift} 62% 45%)`;
+  const G_DEEP   = `hsl(${149 + hueShift} 52% 34%)`;
+
   // 葉棚: 横に平たい楕円クラスタ
   function pad(x, y, size) {
     const n = size * 4.2;
@@ -527,7 +534,7 @@ footer {
         x: x + Math.cos(a) * rr * size * 1.15,          // 横長
         y: y + Math.sin(a) * rr * size * 0.38 - size * .1, // 平たい
         r: 2 + Math.random() * 3,
-        c: Math.random() < .14 ? '#2a8f60' : (Math.random() < .5 ? '#43e6a0' : '#2bbd80'),
+        c: Math.random() < .14 ? G_DEEP : (Math.random() < .5 ? G_BRIGHT : G_MID),
         o: y
       });
     }
@@ -609,72 +616,127 @@ footer {
     });
   }
 
-  // 幹: S字カーブ、根元が太く先端が細い
-  const lean = (Math.random() < .5 ? -1 : 1) * (30 + Math.random() * 40); // 左右どちらかへ流れる
-  const curveAmp = 42 + Math.random() * 26;
-  const trunkH = H * .52;
-  const topX = cx + lean;
-  const trunkPt = t => ({
-    x: cx + lean * t + Math.sin(t * Math.PI * 1.6) * curveAmp * (1 - t * .4),
-    y: potY - 6 - trunkH * t
-  });
-  const STEPS = 90;
+  /* --- 樹形スタイル: 毎回5種類からランダム ---
+     模様木(S字) / 直幹(まっすぐ) / 吹き流し(強風になびく)
+     / 文人木(細く長くうねる) / 懸崖(鉢から垂れ下がる)   */
+  const style = ['moyogi', 'chokkan', 'fukinagashi', 'bunjin', 'kengai'][Math.floor(Math.random() * 5)];
+  const dir = Math.random() < .5 ? -1 : 1;
+  const BROWN1 = '#5c4632', BROWN2 = '#4a3a2b';
+
+  let trunkPt, baseRad, nBranches, branchStart, branchSpan, sameSide, padScale, branchLen;
+  if (style === 'moyogi') {
+    const lean = dir * (30 + Math.random() * 50);
+    const amp = 38 + Math.random() * 34;
+    const trunkH = H * (.46 + Math.random() * .1);
+    trunkPt = t => ({ x: cx + lean * t + Math.sin(t * Math.PI * 1.6) * amp * (1 - t * .4), y: potY - 6 - trunkH * t });
+    baseRad = 14 + Math.random() * 4; nBranches = 4 + Math.floor(Math.random() * 2);
+    branchStart = .3; branchSpan = .55; sameSide = false; padScale = 1; branchLen = 105;
+  } else if (style === 'chokkan') {
+    const lean = dir * Math.random() * 10;
+    const trunkH = H * (.54 + Math.random() * .08);
+    trunkPt = t => ({ x: cx + lean * t + Math.sin(t * 7) * 3, y: potY - 6 - trunkH * t });
+    baseRad = 16 + Math.random() * 4; nBranches = 5 + Math.floor(Math.random() * 2);
+    branchStart = .26; branchSpan = .6; sameSide = false; padScale = .9; branchLen = 115;
+  } else if (style === 'fukinagashi') {
+    const lean = dir * (110 + Math.random() * 60);
+    const trunkH = H * (.4 + Math.random() * .08);
+    trunkPt = t => ({ x: cx + lean * Math.pow(t, 1.3) + Math.sin(t * Math.PI) * 18, y: potY - 6 - trunkH * t });
+    baseRad = 12 + Math.random() * 3; nBranches = 3;
+    branchStart = .4; branchSpan = .5; sameSide = true; padScale = .8; branchLen = 95;
+  } else if (style === 'bunjin') {
+    const lean = dir * (15 + Math.random() * 35);
+    const amp = 50 + Math.random() * 30;
+    const trunkH = H * (.6 + Math.random() * .08);
+    trunkPt = t => ({ x: cx + lean * t + Math.sin(t * Math.PI * (2.4 + Math.random() * .5)) * amp * (1 - t * .25), y: potY - 6 - trunkH * t });
+    baseRad = 7 + Math.random() * 2; nBranches = 1 + Math.floor(Math.random() * 2);
+    branchStart = .74; branchSpan = .16; sameSide = false; padScale = .55; branchLen = 60;
+  } else {
+    // kengai: 少し立ち上がってから鉢の縁を越えて下へ垂れる
+    const drop = 170 + Math.random() * 70;
+    const reach = potW * .7 + 50 + Math.random() * 40;
+    trunkPt = t => {
+      if (t < .28) {
+        const s = t / .28;
+        return { x: cx + dir * 14 * s, y: potY - 6 - 64 * s };
+      }
+      const s = (t - .28) / .72;
+      return {
+        x: cx + dir * (14 + reach * s) + Math.sin(s * 5) * 7,
+        y: potY - 70 + Math.pow(s, 1.3) * drop
+      };
+    };
+    baseRad = 12 + Math.random() * 3; nBranches = 0;
+    padScale = .75;
+  }
+
+  // 幹の描画（共通・根元太→先細）
+  const STEPS = 100;
   for (let i = 0; i <= STEPS; i++) {
     const t = i / STEPS;
     const p = trunkPt(t);
-    const rad = 15 * Math.pow(1 - t, 1.4) + 2.5;   // テーパー（根元太→先細）
+    const rad = baseRad * Math.pow(1 - t, 1.4) + 2.5;
     const nDots = Math.max(2, Math.round(rad / 2.6));
     for (let j = 0; j < nDots; j++) {
       dots.push({
         x: p.x + (Math.random() * 2 - 1) * rad,
         y: p.y + (Math.random() - .5) * 4,
         r: 1.8 + Math.random() * 1.8,
-        c: Math.random() < .25 ? '#4a3a2b' : '#5c4632',
+        c: Math.random() < .25 ? BROWN2 : BROWN1,
         o: p.y
       });
     }
   }
-  // 根張り（根元が地面をつかむ広がり）
+  // 根張り
   for (let i = 0; i < 40; i++) {
     dots.push({
-      x: cx + (Math.random() * 2 - 1) * 34,
+      x: cx + (Math.random() * 2 - 1) * (baseRad * 2.2),
       y: potY - 4 - Math.random() * 8,
       r: 2 + Math.random() * 2,
-      c: '#5c4632',
-      o: potY + 700
+      c: BROWN1, o: potY + 700
     });
   }
 
-  // 枝: 左右交互・ほぼ水平・上ほど短い
-  const nBranches = 4 + Math.floor(Math.random() * 2);
-  let side = Math.random() < .5 ? 1 : -1;
-  for (let b = 0; b < nBranches; b++) {
-    const t = .3 + (b / nBranches) * .55 + Math.random() * .05;
-    const p = trunkPt(t);
-    const len = (110 - b * 18) * (0.85 + Math.random() * .3);
-    const droop = 10 + Math.random() * 14;          // 枝はわずかに下がってから先で持ち上がる
-    const bSteps = Math.floor(len / 6);
-    let ex = p.x, ey = p.y;
-    for (let i = 0; i < bSteps; i++) {
-      const bt = i / bSteps;
-      ex = p.x + side * len * bt;
-      ey = p.y + Math.sin(bt * Math.PI) * droop * .4 - bt * 6;
-      dots.push({
-        x: ex + (Math.random() - .5) * 3,
-        y: ey + (Math.random() - .5) * 3,
-        r: Math.max(1.5, 3.6 * (1 - bt)),
-        c: '#5c4632',
-        o: ey
-      });
+  if (style === 'kengai') {
+    // 懸崖: 垂れる幹に沿って段々に葉棚
+    for (const t of [.34, .5, .66, .82, .97]) {
+      const p = trunkPt(t);
+      pad(p.x, p.y - 8, (30 + Math.random() * 10) * padScale);
     }
-    pad(ex + side * 12, ey - 10, 34 - b * 3 + Math.random() * 8);  // 枝先の葉棚
-    side *= -1;                                     // 左右交互
+    const top = trunkPt(.26);
+    pad(top.x, top.y - 12, 30 * padScale); // 立ち上がりの頂部にも小さな冠
+  } else {
+    // 枝: 上ほど短い（吹き流しは全部風下へ）
+    let side = sameSide ? dir : (Math.random() < .5 ? 1 : -1);
+    for (let b = 0; b < nBranches; b++) {
+      const t = branchStart + (b / Math.max(1, nBranches)) * branchSpan + Math.random() * .04;
+      const p = trunkPt(t);
+      const len = (branchLen - b * 16) * (0.8 + Math.random() * .35);
+      const droop = 10 + Math.random() * 14;
+      const bSteps = Math.floor(len / 6);
+      let ex = p.x, ey = p.y;
+      for (let i = 0; i < bSteps; i++) {
+        const bt = i / bSteps;
+        ex = p.x + side * len * bt;
+        ey = p.y + Math.sin(bt * Math.PI) * droop * .4 - bt * (style === 'fukinagashi' ? 14 : 6);
+        dots.push({
+          x: ex + (Math.random() - .5) * 3,
+          y: ey + (Math.random() - .5) * 3,
+          r: Math.max(1.5, 3.6 * (1 - bt)),
+          c: BROWN1, o: ey
+        });
+      }
+      pad(ex + side * 12, ey - 10, (34 - b * 3 + Math.random() * 8) * padScale);
+      if (!sameSide) side *= -1;
+    }
+    // 頂芽（樹冠）
+    const apex = trunkPt(1);
+    const crownShift = style === 'fukinagashi' ? dir * 26 : 0;
+    pad(apex.x + crownShift, apex.y - 14, 44 * padScale);
+    if (style !== 'bunjin') {
+      pad(apex.x + crownShift - 24, apex.y + 2, 26 * padScale);
+      pad(apex.x + crownShift + 24, apex.y + 2, 26 * padScale);
+    }
   }
-  // 頂芽（樹冠）: 一番上に丸みのある葉群
-  const apex = trunkPt(1);
-  pad(apex.x, apex.y - 14, 44);
-  pad(apex.x - 24, apex.y + 2, 26);
-  pad(apex.x + 24, apex.y + 2, 26);
 
   // 下から順に生える
   dots.sort((a, b) => b.o - a.o);
@@ -743,6 +805,25 @@ footer {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+})();
+
+/* ============ 剪定者カウンター ============ */
+(function () {
+  const el = document.getElementById('hudVisitor');
+  const endings = ['だ！', 'です！', 'だねっ！', 'である。', 'らしい。', '、ようこそ。'];
+  fetch('https://abacus.jasoncameron.dev/hit/bonsaiusagi-com/visits')
+    .then(r => r.json())
+    .then(d => {
+      const n = d.value;
+      const end = endings[Math.floor(Math.random() * endings.length)];
+      let cur = Math.max(0, n - 26);
+      (function tick() {
+        cur = Math.min(n, cur + Math.max(1, Math.ceil((n - cur) / 7)));
+        el.textContent = `あなたは ${cur.toLocaleString()}人目の剪定者${cur === n ? end : '…'}`;
+        if (cur < n) setTimeout(tick, 55);
+      })();
+    })
+    .catch(() => { el.textContent = ''; });
 })();
 
 /* ============ scroll reveal ============ */
