@@ -374,8 +374,8 @@ footer {
 
 <div class="hud-frame"></div>
 <div class="hud-tag" id="hudTL">BONSAIUSAGI.COM</div>
-<div class="hud-tag" id="hudTR">SYS.ONLINE</div>
-<div class="hud-tag" id="hudVisitor" style="top:36px;right:26px;color:var(--jade);font-size:10px;text-align:right"></div>
+<div class="hud-tag" id="hudTR" style="top:64px;">SYS.ONLINE</div>
+<div class="hud-tag" id="hudVisitor" style="top:80px;right:26px;color:var(--jade);font-size:10px;text-align:right"></div>
 <div class="hud-tag" id="hudBL">35.68°N 139.76°E</div>
 
 <nav>
@@ -518,25 +518,44 @@ footer {
      ・左右交互に張り出す、ほぼ水平の枝
      ・枝先に平たい雲状の葉群（葉棚）      */
 
-  // 個体差: 緑のパレットも毎回わずかに違う
-  const hueShift = -16 + Math.random() * 32;
-  const G_BRIGHT = `hsl(${156 + hueShift} 72% 58%)`;
-  const G_MID    = `hsl(${152 + hueShift} 62% 45%)`;
-  const G_DEEP   = `hsl(${149 + hueShift} 52% 34%)`;
+  // 個体差: 葉の色は毎回違う。低確率で紅葉・桜の個体も生まれる
+  const season = Math.random();
+  let hueBase, satBase, lightBase;
+  if (season < .08)      { hueBase = 16 + Math.random() * 16;  satBase = 78; lightBase = 52; } // 紅葉
+  else if (season < .16) { hueBase = 338 + Math.random() * 12; satBase = 62; lightBase = 70; } // 桜
+  else                   { hueBase = 138 + Math.random() * 32; satBase = 62; lightBase = 46; } // 緑（幅広め）
+  const G_BRIGHT = `hsl(${hueBase + 5} ${satBase + 8}% ${lightBase + 12}%)`;
+  const G_MID    = `hsl(${hueBase} ${satBase}% ${lightBase}%)`;
+  const G_DEEP   = `hsl(${hueBase - 4} ${satBase - 10}% ${lightBase - 12}%)`;
 
-  // 葉棚: 横に平たい楕円クラスタ
-  function pad(x, y, size) {
+  // 葉群のかたちも個体差（平たい葉棚 or 丸いもこもこ）
+  const padFlat = Math.random() < .6 ? 0.38 : 0.72;
+
+  function padBlob(x, y, size) {
     const n = size * 4.2;
     for (let i = 0; i < n; i++) {
       const a = Math.random() * Math.PI * 2;
       const rr = Math.sqrt(Math.random());
       dots.push({
-        x: x + Math.cos(a) * rr * size * 1.15,          // 横長
-        y: y + Math.sin(a) * rr * size * 0.38 - size * .1, // 平たい
+        x: x + Math.cos(a) * rr * size * 1.15,
+        y: y + Math.sin(a) * rr * size * padFlat - size * .1,
         r: 2 + Math.random() * 3,
         c: Math.random() < .14 ? G_DEEP : (Math.random() < .5 ? G_BRIGHT : G_MID),
         o: y
       });
+    }
+  }
+  // 葉棚: 2〜4個の塊が重なった、もこもこしたクラスタ
+  function pad(x, y, size) {
+    size *= 1.4;
+    const blobs = 2 + Math.floor(Math.random() * 3);
+    padBlob(x, y, size);
+    for (let b = 1; b < blobs; b++) {
+      padBlob(
+        x + (Math.random() - .5) * size * 1.1,
+        y - Math.random() * size * .4,
+        size * (.45 + Math.random() * .4)
+      );
     }
   }
 
@@ -616,10 +635,14 @@ footer {
     });
   }
 
-  /* --- 樹形スタイル: 毎回5種類からランダム ---
-     模様木(S字) / 直幹(まっすぐ) / 吹き流し(強風になびく)
-     / 文人木(細く長くうねる) / 懸崖(鉢から垂れ下がる)   */
-  const style = ['moyogi', 'chokkan', 'fukinagashi', 'bunjin', 'kengai'][Math.floor(Math.random() * 5)];
+  /* --- 樹形スタイル: 7種類・重み付きランダム ---
+     模様木(S字) / 直幹(まっすぐ・レア) / 吹き流し(強風になびく)
+     / 文人木(細く長くうねる) / 懸崖(鉢から垂れ下がる)
+     / 蛸作り(激しくうねる) / 双幹(幹が2本)              */
+  let style = ['moyogi', 'fukinagashi', 'bunjin', 'kengai', 'tako', 'tako', 'sokan', 'sokan', 'chokkan']
+    [Math.floor(Math.random() * 9)];
+  const twin = style === 'sokan';
+  if (twin) style = 'moyogi'; // 双幹は模様木ベースで2本目を追加
   const dir = Math.random() < .5 ? -1 : 1;
   const BROWN1 = '#5c4632', BROWN2 = '#4a3a2b';
 
@@ -650,6 +673,18 @@ footer {
     trunkPt = t => ({ x: cx + lean * t + Math.sin(t * Math.PI * (2.4 + Math.random() * .5)) * amp * (1 - t * .25), y: potY - 6 - trunkH * t });
     baseRad = 7 + Math.random() * 2; nBranches = 1 + Math.floor(Math.random() * 2);
     branchStart = .74; branchSpan = .16; sameSide = false; padScale = .55; branchLen = 60;
+  } else if (style === 'tako') {
+    // 蛸作り: 幹が激しく左右にうねる
+    const lean = dir * (10 + Math.random() * 30);
+    const amp = 70 + Math.random() * 45;
+    const cycles = 2.8 + Math.random() * 1.4;
+    const trunkH = H * (.44 + Math.random() * .1);
+    trunkPt = t => ({
+      x: cx + lean * t + Math.sin(t * Math.PI * cycles) * amp * (1 - t * .2),
+      y: potY - 6 - trunkH * t
+    });
+    baseRad = 12 + Math.random() * 4; nBranches = 3 + Math.floor(Math.random() * 2);
+    branchStart = .35; branchSpan = .5; sameSide = false; padScale = 1.05; branchLen = 85;
   } else {
     // kengai: 少し立ち上がってから鉢の縁を越えて下へ垂れる
     const drop = 170 + Math.random() * 70;
@@ -736,6 +771,37 @@ footer {
       pad(apex.x + crownShift - 24, apex.y + 2, 26 * padScale);
       pad(apex.x + crownShift + 24, apex.y + 2, 26 * padScale);
     }
+  }
+
+  // 双幹: 根元から2本目の小さい幹を生やす
+  if (twin) {
+    const lean2 = -dir * (40 + Math.random() * 40);
+    const amp2 = 26 + Math.random() * 20;
+    const h2 = H * (.26 + Math.random() * .08);
+    const base2 = cx - dir * (baseRad * 1.6 + 6);
+    const trunk2 = t => ({
+      x: base2 + lean2 * t + Math.sin(t * Math.PI * 1.4) * amp2,
+      y: potY - 6 - h2 * t
+    });
+    const rad2 = baseRad * .6;
+    for (let i = 0; i <= 60; i++) {
+      const t = i / 60;
+      const p = trunk2(t);
+      const rad = rad2 * Math.pow(1 - t, 1.4) + 2;
+      for (let j = 0; j < Math.max(2, Math.round(rad / 2.6)); j++) {
+        dots.push({
+          x: p.x + (Math.random() * 2 - 1) * rad,
+          y: p.y + (Math.random() - .5) * 4,
+          r: 1.8 + Math.random() * 1.8,
+          c: Math.random() < .25 ? BROWN2 : BROWN1,
+          o: p.y
+        });
+      }
+    }
+    const a2 = trunk2(1);
+    pad(a2.x, a2.y - 10, 32);
+    const m2 = trunk2(.6);
+    pad(m2.x - dir * 20, m2.y, 22);
   }
 
   // 下から順に生える
