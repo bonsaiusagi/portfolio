@@ -561,7 +561,7 @@ footer {
 
   // 器: 毎回ランダムで4種類（正統2種 + ありえない2種）
   const potY = H * .84;
-  const potVariant = Math.floor(Math.random() * 4); // 0浅鉢 1丸鉢 2バケツ 3マグカップ
+  const potVariant = Math.floor(Math.random() * 7); // 0浅鉢 1丸鉢 2バケツ 3マグ 4菓子袋 5空き缶 6長靴
   let potW;
 
   function fillPot(shapeHalf, potH, colors, rimColor) {
@@ -610,7 +610,7 @@ footer {
         r: 1.8, c: '#8a95a3', o: potY + 900
       });
     }
-  } else {
+  } else if (potVariant === 3) {
     // マグカップ（ありえない・白磁・円筒＋取っ手）
     potW = W * .26;
     fillPot(() => potW / 2, 66, ['#b8b4a8', '#cac6ba'], '#e0dcd0');
@@ -621,6 +621,72 @@ footer {
         x: cx + potW / 2 + 18 + Math.cos(a) * 16,
         y: potY + 30 + Math.sin(a) * 20,
         r: 2, c: '#cac6ba', o: potY + 900
+      });
+    }
+  } else if (potVariant === 4) {
+    // スナック菓子の袋（ありえない・真ん中が膨らみ、上端がギザギザの封）
+    potW = W * .32;
+    fillPot(t => potW / 2 * (0.78 + 0.22 * Math.sin(t * Math.PI)), 84,
+            ['#c0392b', '#d84a38', '#e2b93b'], '#e2b93b');
+    // 上端のギザギザの封
+    for (let i = 0; i < 34; i++) {
+      const x = cx - potW * .38 + (i / 33) * potW * .76;
+      dots.push({
+        x, y: potY - 3 - (i % 2) * 6,
+        r: 2.4, c: '#e2b93b', o: potY + 900
+      });
+    }
+    // 袋のテカり（ハイライト）
+    for (let i = 0; i < 26; i++) {
+      dots.push({
+        x: cx - potW * .22 + (Math.random() - .5) * 10,
+        y: potY + 12 + Math.random() * 58,
+        r: 1.6, c: '#f0e6d8', o: potY + 900
+      });
+    }
+  } else if (potVariant === 5) {
+    // 空き缶（ありえない・アルミ＋ブランド帯・プルタブ）
+    potW = W * .2;
+    fillPot(() => potW / 2, 78, ['#9aa4ae', '#b4bec8'], '#d8e0e8');
+    // ブランド帯（翡翠色）
+    for (let i = 0; i < 90; i++) {
+      dots.push({
+        x: cx + (Math.random() * 2 - 1) * potW / 2,
+        y: potY + 28 + Math.random() * 22,
+        r: 2 + Math.random() * 1.6, c: '#43e6a0', o: potY + 900
+      });
+    }
+    // プルタブ
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2;
+      dots.push({
+        x: cx + potW * .18 + Math.cos(a) * 7,
+        y: potY + 4 + Math.sin(a) * 5,
+        r: 1.5, c: '#d8e0e8', o: potY + 900
+      });
+    }
+  } else {
+    // 長靴（ありえない・黄色いレインブーツ・つま先が横に出る）
+    potW = W * .2;
+    fillPot(() => potW / 2, 92, ['#d4b83a', '#e0c74e'], '#efe08a');
+    // つま先（片側へ膨らむ）
+    const toeDir = Math.random() < .5 ? -1 : 1;
+    for (let i = 0; i < 90; i++) {
+      const a = Math.random() * Math.PI;
+      const rr = Math.sqrt(Math.random());
+      dots.push({
+        x: cx + toeDir * (potW / 2 + rr * Math.cos(a * .5) * 44),
+        y: potY + 66 + rr * Math.abs(Math.sin(a)) * 24,
+        r: 2 + Math.random() * 2.2, c: Math.random() < .5 ? '#d4b83a' : '#e0c74e',
+        o: potY + 900
+      });
+    }
+    // 靴底
+    for (let i = 0; i < 40; i++) {
+      dots.push({
+        x: cx + (Math.random() * 2 - 1) * potW * .6 + toeDir * 18,
+        y: potY + 90 + Math.random() * 6,
+        r: 2, c: '#3a3128', o: potY + 900
       });
     }
   }
