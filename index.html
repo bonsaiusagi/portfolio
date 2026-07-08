@@ -482,14 +482,22 @@ footer {
   <div>GROWN ON CLOUDFLARE PAGES</div>
 </footer>
 
-<!-- rabbit -->
-<svg id="usagi" viewBox="0 0 34 40" xmlns="http://www.w3.org/2000/svg">
-  <g id="usagiBody">
-    <!-- ears -->
+<!-- rabbit: 立ち耳 / 垂れ耳 の2タイプをランダム表示。クリックでジャンプ -->
+<svg id="usagi" viewBox="0 0 34 40" xmlns="http://www.w3.org/2000/svg" role="button" aria-label="うさぎ" style="cursor:pointer">
+  <g id="earsStand">
     <rect x="9"  y="2"  width="5" height="14" fill="#e8e6df"/>
     <rect x="20" y="2"  width="5" height="14" fill="#e8e6df"/>
     <rect x="11" y="5"  width="2" height="9" fill="#ff4d36" opacity=".55"/>
     <rect x="22" y="5"  width="2" height="9" fill="#ff4d36" opacity=".55"/>
+  </g>
+  <g id="earsLop" style="display:none">
+    <!-- 垂れ耳: 頭の横から下向きに垂れる -->
+    <rect x="2"  y="14" width="5" height="15" fill="#e8e6df"/>
+    <rect x="27" y="14" width="5" height="15" fill="#e8e6df"/>
+    <rect x="3"  y="17" width="2" height="10" fill="#ff4d36" opacity=".55"/>
+    <rect x="29" y="17" width="2" height="10" fill="#ff4d36" opacity=".55"/>
+  </g>
+  <g id="usagiBody">
     <!-- head -->
     <rect x="5" y="15" width="24" height="18" fill="#e8e6df"/>
     <!-- eyes -->
@@ -942,16 +950,14 @@ footer {
 /* ============ 剪定者カウンター ============ */
 (function () {
   const el = document.getElementById('hudVisitor');
-  const endings = ['だ！', 'です！', 'だねっ！', 'である。', 'らしい。', '、ようこそ。'];
   fetch('https://abacus.jasoncameron.dev/hit/bonsaiusagi-com/visits')
     .then(r => r.json())
     .then(d => {
       const n = d.value;
-      const end = endings[Math.floor(Math.random() * endings.length)];
       let cur = Math.max(0, n - 26);
       (function tick() {
         cur = Math.min(n, cur + Math.max(1, Math.ceil((n - cur) / 7)));
-        el.textContent = `あなたは ${cur.toLocaleString()}人目の剪定者${cur === n ? end : '…'}`;
+        el.textContent = `あなたは ${cur.toLocaleString()}人目の剪定者${cur === n ? 'です。' : '…'}`;
         if (cur < n) setTimeout(tick, 55);
       })();
     })
@@ -964,11 +970,19 @@ const io = new IntersectionObserver(es => {
 }, { threshold: .15 });
 document.querySelectorAll('.reveal, .work-row').forEach(el => io.observe(el));
 
-/* ============ うさぎがカーソルを見る ============ */
+/* ============ うさぎ: 耳タイプをランダム表示 + カーソル追従 + クリックジャンプ ============ */
 (function () {
   const eyeL = document.getElementById('eyeL');
   const eyeR = document.getElementById('eyeR');
   const usagi = document.getElementById('usagi');
+  const earsStand = document.getElementById('earsStand');
+  const earsLop = document.getElementById('earsLop');
+
+  // 盆栽と同じく、開くたびランダムに立ち耳 / 垂れ耳
+  const isLop = Math.random() < 0.5;
+  earsStand.style.display = isLop ? 'none' : '';
+  earsLop.style.display = isLop ? '' : 'none';
+
   addEventListener('mousemove', e => {
     const r = usagi.getBoundingClientRect();
     const dx = e.clientX - (r.left + r.width / 2);
@@ -985,11 +999,22 @@ document.querySelectorAll('.reveal, .work-row').forEach(el => io.observe(el));
       eyeL.setAttribute('y', 21); eyeR.setAttribute('y', 21);
     }, 140);
   }, 3400 + Math.random() * 2000);
+
+  let jumping = false;
+  function jump(big) {
+    if (jumping) return;
+    jumping = true;
+    usagi.style.transition = big ? 'transform .18s cubic-bezier(.34,1.56,.64,1)' : 'transform .4s';
+    usagi.style.transform = `translateY(${big ? -22 : -8}px)`;
+    setTimeout(() => {
+      usagi.style.transform = '';
+      setTimeout(() => { jumping = false; }, big ? 180 : 400);
+    }, big ? 160 : 220);
+  }
   // たまにぴょこっと跳ねる
-  setInterval(() => {
-    usagi.style.transform = 'translateY(-8px)';
-    setTimeout(() => usagi.style.transform = '', 220);
-  }, 7000 + Math.random() * 6000);
+  setInterval(() => jump(false), 7000 + Math.random() * 6000);
+  // クリックで大ジャンプ
+  usagi.addEventListener('click', () => jump(true));
 })();
 </script>
 </body>
