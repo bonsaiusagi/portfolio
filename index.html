@@ -538,11 +538,11 @@ footer {
     <rect x="22" y="5"  width="2" height="9" fill="#ff4d36" opacity=".55"/>
   </g>
   <g id="earsLop" style="display:none">
-    <!-- 垂れ耳: 頭の横から下向きに垂れる -->
-    <rect x="2"  y="14" width="5" height="15" fill="#e8e6df"/>
-    <rect x="27" y="14" width="5" height="15" fill="#e8e6df"/>
-    <rect x="3"  y="17" width="2" height="10" fill="#ff4d36" opacity=".55"/>
-    <rect x="29" y="17" width="2" height="10" fill="#ff4d36" opacity=".55"/>
+    <!-- 垂れ耳: 頭のてっぺんから頬に沿って垂れる（ホーランドロップ風・内耳は見えない） -->
+    <rect x="4"  y="12" width="6" height="8"  fill="#c3b096"/>
+    <rect x="3"  y="18" width="6" height="14" fill="#c3b096"/>
+    <rect x="24" y="12" width="6" height="8"  fill="#c3b096"/>
+    <rect x="25" y="18" width="6" height="14" fill="#c3b096"/>
   </g>
   <g id="usagiBody">
     <!-- head -->
@@ -931,22 +931,13 @@ footer {
   let shown = 0;
   const total = dots.length;
   const pctEl = document.getElementById('growPct');
-  let mx = 0, my = 0;
-  addEventListener('mousemove', e => {
-    mx = (e.clientX / innerWidth - .5) * 10;
-    my = (e.clientY / innerHeight - .5) * 8;
-  });
-
   function draw() {
     ctx.clearRect(0, 0, W, H);
-    ctx.save();
-    ctx.translate(mx, my);
     for (let i = 0; i < shown; i++) {
       const d = dots[i];
       ctx.fillStyle = d.c;
       ctx.fillRect(d.x - d.r, d.y - d.r, d.r * 2, d.r * 2);
     }
-    ctx.restore();
     if (shown < total) {
       shown = Math.min(total, shown + Math.max(2, Math.floor(total / 260)));
       pctEl.textContent = Math.floor(shown / total * 100);
@@ -1029,6 +1020,14 @@ document.querySelectorAll('.reveal, .work-row').forEach(el => io.observe(el));
   const isLop = Math.random() < 0.5;
   earsStand.style.display = isLop ? 'none' : '';
   earsLop.style.display = isLop ? '' : 'none';
+  // 垂れ耳の子は深めのクリーム色（ホーランドロップ風）
+  if (isLop) {
+    document.querySelectorAll('#usagiBody rect').forEach(r => {
+      const f = r.getAttribute('fill');
+      if (f === '#e8e6df') r.setAttribute('fill', '#d4c3a8');
+      else if (f === '#ff4d36') r.setAttribute('fill', '#c98a74'); // 鼻もやわらかい色に
+    });
+  }
 
   addEventListener('mousemove', e => {
     const r = usagi.getBoundingClientRect();
