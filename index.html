@@ -504,12 +504,6 @@ footer {
         名前の由来はそのまま、盆栽と兎。<span class="jade">私の好きな二つを純粋に組み合わせました。</span>
       </p>
     </div>
-    <figure class="reveal" id="gardenerFig" style="text-align:center;margin:0">
-      <canvas id="gardenerPhoto" style="max-width:280px;width:100%;display:none;margin:0 auto"></canvas>
-      <figcaption id="gardenerCap" style="display:none;font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--dim);margin-top:12px">
-        THE GARDENER
-      </figcaption>
-    </figure>
   </div>
 </section>
 
@@ -985,35 +979,6 @@ footer {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-})();
-
-/* ============ 庭師の写真（白背景を自動で透過） ============ */
-(function () {
-  const img = new Image();
-  img.onload = () => {
-    const c = document.getElementById('gardenerPhoto');
-    const maxW = 560;
-    const scale = Math.min(1, maxW / img.naturalWidth);
-    c.width = Math.round(img.naturalWidth * scale);
-    c.height = Math.round(img.naturalHeight * scale);
-    const g = c.getContext('2d');
-    g.drawImage(img, 0, 0, c.width, c.height);
-    // 白〜ごく明るい背景を透明にする（境界はなめらかに）
-    const d = g.getImageData(0, 0, c.width, c.height);
-    const p = d.data;
-    for (let i = 0; i < p.length; i += 4) {
-      const r = p[i], gr = p[i+1], b = p[i+2];
-      const lum = (r + gr + b) / 3;
-      const chroma = Math.max(r, gr, b) - Math.min(r, gr, b);
-      if (lum > 233 && chroma < 16) p[i+3] = 0;                       // ほぼ白 → 透明
-      else if (lum > 215 && chroma < 16) p[i+3] = (233 - lum) * 14;   // 境界をフェード
-    }
-    g.putImageData(d, 0, 0);
-    c.style.display = 'block';
-    document.getElementById('gardenerCap').style.display = 'block';
-  };
-  img.onerror = () => {}; // 画像未配置なら何も表示しない
-  img.src = 'me.png';
 })();
 
 /* ============ 剪定者カウンター ============ */
