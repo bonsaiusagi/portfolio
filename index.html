@@ -410,30 +410,6 @@ footer {
     <div class="sec-line"></div>
   </div>
 
-  <!-- DOTDAYS -->
-  <div class="work-row">
-    <div class="work-visual">
-      <span class="status-chip">BETA</span>
-      <canvas id="dotdaysPreview" width="640" height="400"></canvas>
-    </div>
-    <div class="work-info">
-      <div class="work-no">WORK_001</div>
-      <h3>DOTDAYS</h3>
-      <div class="work-kana">1日1枚の写真が、1枚の絵になる</div>
-      <p>
-        部活の引退、卒業の日、結婚式。<b>「最後の日」に向けて毎日1枚だけ写真を撮る</b>と、
-        その全部が1枚のモザイクアートとして完成するアプリ。写真は端末の外に出ない設計で、
-        最終日にはスクリーンで流せるセレモニー動画を書き出せます。
-      </p>
-      <div class="work-meta">
-        <span>TYPE / PWA</span>
-        <span>STACK / VANILLA JS · CANVAS · INDEXEDDB</span>
-        <span>SINCE / 2026.07</span>
-      </div>
-      <a class="work-link" href="https://dotdays.pages.dev" target="_blank" rel="noopener">dotdays.pages.dev — 使ってみる</a>
-    </div>
-  </div>
-
   <!-- RABBIT RUN -->
   <div class="work-row">
     <div class="work-visual">
@@ -467,7 +443,7 @@ footer {
       </svg>
     </div>
     <div class="work-info">
-      <div class="work-no">WORK_002</div>
+      <div class="work-no">WORK_001</div>
       <h3>RABBIT RUN</h3>
       <div class="work-kana">走れ、うさぎ。ジャンプだけの横スクロールアクション</div>
       <p>
@@ -943,42 +919,6 @@ footer {
     requestAnimationFrame(draw);
   }
   draw();
-})();
-
-/* ============ DOTDAYS プレビュー（タイルが埋まるループ） ============ */
-(function () {
-  const cv = document.getElementById('dotdaysPreview');
-  const ctx = cv.getContext('2d');
-  const W = cv.width, H = cv.height;
-  const COLS = 16, ROWS = 10, GAP = 3;
-  const cell = Math.min((W - GAP * (COLS+1)) / COLS, (H - GAP * (ROWS+1)) / ROWS);
-  const gx = (W - (COLS * (cell + GAP) - GAP)) / 2;
-  const gy = (H - (ROWS * (cell + GAP) - GAP)) / 2;
-  let tiles, t0;
-  function gen() {
-    tiles = [];
-    for (let i = 0; i < COLS * ROWS; i++) {
-      const h = (150 + Math.sin(i * .43) * 40 + Math.random() * 26) % 360;
-      tiles.push(`hsl(${h} 42% ${26 + Math.random() * 26}%)`);
-    }
-    t0 = performance.now();
-  }
-  gen();
-  const APPEAR = 46, HOLD = 2400;
-  function frame(now) {
-    const total = COLS * ROWS * APPEAR + HOLD;
-    let t = now - t0;
-    if (t > total) { gen(); t = 0; }
-    ctx.fillStyle = '#0a0c0e';
-    ctx.fillRect(0, 0, W, H);
-    const n = Math.min(COLS * ROWS, Math.floor(t / APPEAR) + 1);
-    for (let i = 0; i < n; i++) {
-      ctx.fillStyle = tiles[i];
-      ctx.fillRect(gx + (i % COLS) * (cell + GAP), gy + Math.floor(i / COLS) * (cell + GAP), cell, cell);
-    }
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
 })();
 
 /* ============ 剪定者カウンター ============ */
